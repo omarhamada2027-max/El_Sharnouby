@@ -613,7 +613,7 @@ elif selected_card == "Card 2":
             with story_c1:
                 st.markdown("<p style='color: #94A3B8; font-size: 0.85rem; font-weight: 600;'>Customer Base Growth Trend (Join Date)</p>", unsafe_allow_html=True)
                 if not cust_df.empty and 'Join_Date' in cust_df.columns:
-                    cust_growth = cust_df.set_index('Join_Date').resample('M')['Customer_ID'].count().reset_index()
+                    cust_growth = cust_df.set_index('Join_Date').resample('ME')['Customer_ID'].count().reset_index()
                     fig_growth = px.area(cust_growth, x='Join_Date', y='Customer_ID', 
                                          labels={'Customer_ID': 'New Clients', 'Join_Date': 'Date'},
                                          color_discrete_sequence=['#8B5CF6'], template="plotly_dark")
