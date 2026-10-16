@@ -175,7 +175,7 @@ st.markdown("""
 # ==========================================
 # 2. AUTOMATED DATA LOADING
 # ==========================================
-DATA_DIR = r"D:\visual projects\Sharnouby_data"
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Sharnouby_data")
 
 @st.cache_data
 def load_and_clean_data():
@@ -224,7 +224,7 @@ if 'active_card' not in st.session_state:
     st.session_state['active_card'] = "Card 1"
 
 # المسار الخاص بملف اللوجو
-LOGO_PATH = r"D:\visual projects\Sharnouby_data\logo.png" # أو "logo.png" لو جنب الملف مباشرة
+LOGO_PATH = "logo.png" # أو "logo.png" لو جنب الملف مباشرة
 
 st.sidebar.markdown("""
     <style>
