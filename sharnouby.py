@@ -175,10 +175,29 @@ st.markdown("""
 # ==========================================
 # 2. AUTOMATED DATA LOADING
 # ==========================================
-DATA_DIR = r"D:\visual projects\Sharnouby_data"
+# معرف فولدر جوجل درايف الخاص بك
+FOLDER_ID = "19TUKnaV8j7QV-DPCaesikubXa4ahF3VS"
+DATA_DIR = "Sharnouby_data"
 
+@st.cache_resource
+def download_data_from_drive():
+    # لو الفولدر مش موجود على السيرفر سحابياً، نزله أوتوماتيكياً
+    if not os.path.exists(DATA_DIR) or not os.listdir(DATA_DIR):
+        with st.spinner("⏳ جاري سحب وتجهيز قواعد البيانات الكاملة من السحابة... ثوانٍ وتعمل الداشبورد"):
+            try:
+                os.makedirs(DATA_DIR, exist_ok=True)
+                # استخدام gdown لسحب الفولدر كاملاً بالمعرف
+                url = f"https://drive.google.com/drive/folders/{FOLDER_ID}"
+                gdown.download_folder(url, output=DATA_DIR, quiet=False, use_cookies=False)
+            except Exception as e:
+                st.error(f"خطأ في تحميل البيانات من السحابة: {e}")
+
+# تشغيل عملية السحب فور فتح التطبيق
+download_data_from_drive()
+
+# دالة قراءة الجداول من المجلد المحلي بعد سحبها
 @st.cache_data
-def load_and_clean_data():
+def load_all_tables():
     dfs = {}
     if os.path.exists(DATA_DIR):
         for file in os.listdir(DATA_DIR):
@@ -188,35 +207,26 @@ def load_and_clean_data():
                 try:
                     df = pd.read_csv(file_path)
                     df.columns = df.columns.str.strip()
+                    
+                    # معالجة التاريخ لجدول المبيعات لو موجود
                     if table_name == "Sales_Transactions":
-                        # البحث الذكي عن عمود التاريخ بأي صيغة أو حالة حروف
                         date_col = next((col for col in df.columns if 'date' in col.lower() or 'order' in col.lower()), None)
                         if date_col:
                             df['Order_Date'] = pd.to_datetime(df[date_col], errors='coerce')
                             df['Year'] = df['Order_Date'].dt.year
-                        
-                        if 'Return_Date' in df.columns:
-                            df['Return_Date'] = pd.to_datetime(df['Return_Date'], errors='coerce')
                         if 'Net_Sales_EGP' not in df.columns and 'Gross_Sales_EGP' in df.columns and 'Discount_Pct' in df.columns:
                             df['Net_Sales_EGP'] = df['Gross_Sales_EGP'] * (1 - df['Discount_Pct'] / 100)
-                        if 'Return_Date' in df.columns:
-                            df['Return_Date'] = pd.to_datetime(df['Return_Date'], errors='coerce')
-                        if 'Net_Sales_EGP' not in df.columns and 'Gross_Sales_EGP' in df.columns and 'Discount_Pct' in df.columns:
-                            df['Net_Sales_EGP'] = df['Gross_Sales_EGP'] * (1 - df['Discount_Pct'] / 100)
-                    elif table_name == "Customers":
-                        if 'Join_Date' in df.columns:
-                            df['Join_Date'] = pd.to_datetime(df['Join_Date'], errors='coerce')
+                            
                     dfs[table_name] = df
                 except Exception as e:
                     print(f"Error loading {file}: {e}")
     return dfs
 
-dfs = load_and_clean_data()
+dfs = load_all_tables()
 
 if not dfs:
-    st.error(f"⚠️ لم يتم العثور على ملفات البيانات في المسار: {DATA_DIR}")
+    st.error("⚠️ لم يتم العثور على أي جداول بيانات. تأكد من إتاحة مشاركة الفولدر على جوجل درايف.")
     st.stop()
-
 # ==========================================
 # 3. MODERN CARD-BASED SIDEBAR NAVIGATION WITH LOGO
 # ==========================================
