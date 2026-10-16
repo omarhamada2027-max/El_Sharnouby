@@ -175,7 +175,7 @@ st.markdown("""
 # ==========================================
 # 2. AUTOMATED DATA LOADING
 # ==========================================
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Sharnouby_data")
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sharnouby_data")
 
 @st.cache_data
 def load_and_clean_data():
