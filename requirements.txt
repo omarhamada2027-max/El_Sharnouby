@@ -9,3 +9,5 @@ statsmodels
 prophet
 gdown
 requests
+xgboost
+
